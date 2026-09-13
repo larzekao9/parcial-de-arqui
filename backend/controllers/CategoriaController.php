@@ -26,18 +26,21 @@ class CategoriaController
     public function crear(array $datos): void
     {
         $this->model->registrar($datos);
-        $this->obtenerTodos();
+        $categorias = $this->model->obtenerTodos();
+        $this->view->render($categorias, ['editando' => null]);
     }
 
     public function actualizar(int $id, array $datos): void
     {
         $this->model->actualizar($id, $datos);
-        $this->obtenerTodos();
+        $categorias = $this->model->obtenerTodos();
+        $this->view->render($categorias, ['editando' => null]);
     }
 
     public function eliminar(int $id): void
     {
         $this->model->eliminar($id);
-        $this->obtenerTodos();
+        $categorias = $this->model->obtenerTodos();
+        $this->view->render($categorias, ['editando' => null]);
     }
 }

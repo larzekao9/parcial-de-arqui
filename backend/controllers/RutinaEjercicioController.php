@@ -34,7 +34,12 @@ class RutinaEjercicioController
             return;
         }
 
-        $this->obtenerPorId((int)$idFinal);
+        $rutinaId = (int)$idFinal;
+        $rutina = $this->modeloRutina->buscarPorId($rutinaId);
+        $ejercicios = $this->modeloEjercicio->obtenerTodos();
+        $asignados = $this->modeloRutinaEj->obtenerPorRutina($rutinaId);
+
+        $this->vista->render($rutina, $rutinas, $ejercicios, $asignados);
     }
 
     public function obtenerPorId(int $rutinaId): void
@@ -50,12 +55,25 @@ class RutinaEjercicioController
     public function agregarEjercicio(array $datos): void
     {
         $this->modeloRutinaEj->agregar($datos);
-        $this->obtenerPorId((int)$datos['rutina_id']);
+
+        $rutinaId = (int)$datos['rutina_id'];
+        $rutinas = $this->modeloRutina->obtenerTodos();
+        $rutina = $this->modeloRutina->buscarPorId($rutinaId);
+        $ejercicios = $this->modeloEjercicio->obtenerTodos();
+        $asignados = $this->modeloRutinaEj->obtenerPorRutina($rutinaId);
+
+        $this->vista->render($rutina, $rutinas, $ejercicios, $asignados);
     }
 
     public function eliminarEjercicio(int $rutinaId, int $ejercicioId): void
     {
         $this->modeloRutinaEj->eliminar($rutinaId, $ejercicioId);
-        $this->obtenerPorId($rutinaId);
+
+        $rutinas = $this->modeloRutina->obtenerTodos();
+        $rutina = $this->modeloRutina->buscarPorId($rutinaId);
+        $ejercicios = $this->modeloEjercicio->obtenerTodos();
+        $asignados = $this->modeloRutinaEj->obtenerPorRutina($rutinaId);
+
+        $this->vista->render($rutina, $rutinas, $ejercicios, $asignados);
     }
 }

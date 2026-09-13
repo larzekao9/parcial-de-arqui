@@ -26,18 +26,21 @@ class UsuarioController
     public function crear(array $datos): void
     {
         $this->model->crear($datos);
-        $this->obtenerTodos();
+        $usuarios = $this->model->obtenerTodos();
+        $this->view->render($usuarios, ['editando' => null]);
     }
 
     public function actualizar(int $id, array $datos): void
     {
         $this->model->actualizar($id, $datos);
-        $this->obtenerTodos();
+        $usuarios = $this->model->obtenerTodos();
+        $this->view->render($usuarios, ['editando' => null]);
     }
 
     public function eliminar(int $id): void
     {
         $this->model->eliminar($id);
-        $this->obtenerTodos();
+        $usuarios = $this->model->obtenerTodos();
+        $this->view->render($usuarios, ['editando' => null]);
     }
 }

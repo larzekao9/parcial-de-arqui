@@ -43,12 +43,25 @@ class AsignacionController
     public function agregarAsignacion(array $datos): void
     {
         $this->modeloAsignacion->agregar($datos);
-        $this->obtenerPorId((int)$datos['usuario_id']);
+
+        $usuarioId = (int)$datos['usuario_id'];
+        $usuarios = $this->modeloUsuario->obtenerTodos();
+        $usuario = $this->modeloUsuario->obtenerPorId($usuarioId);
+        $rutinas = $this->modeloRutina->obtenerTodos();
+        $asignadas = $this->modeloAsignacion->obtenerPorUsuario($usuarioId);
+
+        $this->vista->render($usuario, $usuarios, $rutinas, $asignadas);
     }
 
     public function eliminarAsignacion(int $usuarioId, int $rutinaId, string $fechaInicio): void
     {
         $this->modeloAsignacion->eliminar($usuarioId, $rutinaId, $fechaInicio);
-        $this->obtenerPorId($usuarioId);
+
+        $usuarios = $this->modeloUsuario->obtenerTodos();
+        $usuario = $this->modeloUsuario->obtenerPorId($usuarioId);
+        $rutinas = $this->modeloRutina->obtenerTodos();
+        $asignadas = $this->modeloAsignacion->obtenerPorUsuario($usuarioId);
+
+        $this->vista->render($usuario, $usuarios, $rutinas, $asignadas);
     }
 }

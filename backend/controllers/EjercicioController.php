@@ -32,7 +32,9 @@ class EjercicioController
         $datos['imagen_url'] = $this->subirArchivo('imagen', $datos['imagen_actual'] ?? '');
         $datos['video_url'] = $this->subirArchivo('video', $datos['video_actual'] ?? '');
         $this->model->registrar($datos);
-        $this->obtenerTodos();
+        $ejercicios = $this->model->obtenerTodos();
+        $categorias = $this->categoriaModel->obtenerTodos();
+        $this->view->render($ejercicios, ['editando' => null, 'categorias' => $categorias]);
     }
 
     public function actualizar(int $id, array $datos): void
@@ -40,13 +42,17 @@ class EjercicioController
         $datos['imagen_url'] = $this->subirArchivo('imagen', $datos['imagen_actual'] ?? '');
         $datos['video_url'] = $this->subirArchivo('video', $datos['video_actual'] ?? '');
         $this->model->actualizar($id, $datos);
-        $this->obtenerTodos();
+        $ejercicios = $this->model->obtenerTodos();
+        $categorias = $this->categoriaModel->obtenerTodos();
+        $this->view->render($ejercicios, ['editando' => null, 'categorias' => $categorias]);
     }
 
     public function eliminar(int $id): void
     {
         $this->model->eliminar($id);
-        $this->obtenerTodos();
+        $ejercicios = $this->model->obtenerTodos();
+        $categorias = $this->categoriaModel->obtenerTodos();
+        $this->view->render($ejercicios, ['editando' => null, 'categorias' => $categorias]);
     }
 
     private function subirArchivo(string $campo, string $actual): string

@@ -1,0 +1,102 @@
+@startuml SEC_CU1_GestionarUsuarios
+title SEC CU1 - Gestionar Usuarios
+autonumber "1.1"
+
+skinparam backgroundColor white
+skinparam sequence {
+    ArrowColor #1A73E8
+    ReturnArrowColor #1A73E8
+    LifeLineBorderColor #1A73E8
+    LifeLineBackgroundColor #EAF1FE
+    ParticipantBorderColor #1A73E8
+    ParticipantBackgroundColor #BBD6FB
+    ParticipantFontColor #0B3D91
+    ActorBorderColor #1A73E8
+    ActorBackgroundColor #BBD6FB
+}
+
+actor "Administrador" as Admin
+participant "CUsuario" as C <<Controlador>>
+participant "VUsuario" as V <<Vista>>
+participant "MUsuario" as M <<Modelo>>
+participant "Conexion" as X <<Dato>>
+
+Admin -> C : obtenerTodos()
+activate C
+C -> M : obtenerTodos(): array
+activate M
+M -> X : getConexion(): PDO
+activate X
+X --> M : PDO
+deactivate X
+M --> C : array
+deactivate M
+C -> V : render(usuarios, opciones): void
+deactivate C
+
+alt Editar (GET /usuario?editar=id)
+    Admin -> C : obtenerPorId(id: int)
+    activate C
+    C -> M : obtenerTodos(): array
+    activate M
+    M --> C : array
+    deactivate M
+    C -> M : obtenerPorId(id: int): ?array
+    activate M
+    M --> C : ?array
+    deactivate M
+    C -> V : render(usuarios, [editando=>usuario]): void
+    deactivate C
+
+else Crear (POST /usuario sin id)
+    Admin -> C : crear(datos: array)
+    activate C
+    C -> M : crear(datos: array): array
+    activate M
+    M -> X : getConexion(): PDO
+    activate X
+    X --> M : PDO
+    deactivate X
+    M --> C : array
+    deactivate M
+    C -> M : obtenerTodos(): array
+    activate M
+    M --> C : array
+    deactivate M
+    C -> V : render(usuarios, [editando=>null]): void
+    deactivate C
+
+else Actualizar (POST /usuario con id)
+    Admin -> C : actualizar(id: int, datos: array)
+    activate C
+    C -> M : actualizar(id: int, datos: array): void
+    activate M
+    M --> C : void
+    deactivate M
+    C -> M : obtenerTodos(): array
+    activate M
+    M --> C : array
+    deactivate M
+    C -> V : render(usuarios, [editando=>null]): void
+    deactivate C
+
+else Eliminar (POST /usuario?eliminar=id)
+    Admin -> C : eliminar(id: int)
+    activate C
+    C -> M : eliminar(id: int): void
+    activate M
+    M -> X : getConexion(): PDO
+    activate X
+    X --> M : PDO
+    deactivate X
+    M --> C : void
+    deactivate M
+    C -> M : obtenerTodos(): array
+    activate M
+    M --> C : array
+    deactivate M
+    C -> V : render(usuarios, [editando=>null]): void
+    deactivate C
+end
+
+@enduml

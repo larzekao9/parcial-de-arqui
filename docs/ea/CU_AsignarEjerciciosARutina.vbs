@@ -3,22 +3,22 @@ Option Explicit
 !INC Local Scripts.EAConstants-VBScript
 
 '
-' Script Name: CU_AsignarRutinaAUsuario
+' Script Name: CU_AsignarEjerciciosARutina
 ' Author:
 ' Purpose: Genera el diagrama de clases (Modelo/Vista/Controlador/Dato)
-'          del caso de uso "Asignar Rutina a Usuario", reflejando el
+'          del caso de uso "Asignar Ejercicios a Rutina", reflejando el
 '          código PHP real de:
-'            - backend/models/AsignacionModel.php
-'            - backend/models/UsuarioModel.php (dependencia)
+'            - backend/models/RutinaEjercicioModel.php
 '            - backend/models/RutinaModel.php (dependencia)
-'            - backend/views/AsignacionView.php
-'            - backend/controllers/AsignacionController.php
+'            - backend/models/EjercicioModel.php (dependencia)
+'            - backend/views/RutinaEjercicioView.php
+'            - backend/controllers/RutinaEjercicioController.php
 '            - backend/Conexion.php
-'          MAsignacion no tiene "id" propio: la tabla "asignacion" usa
-'          clave compuesta (usuario_id, rutina_id, fecha_inicio), por
-'          eso no se le agrega ese atributo. El controlador tiene
-'          instancia de MUsuario, MRutina, MAsignacion y VAsignacion
-'          (constructor con 4 parámetros).
+'          MRutinaEjercicio no tiene "id" propio: la tabla
+'          "rutina_ejercicio" usa clave compuesta (rutina_id,
+'          ejercicio_id). El controlador tiene instancia de MRutina,
+'          MEjercicio, MRutinaEjercicio y VRutinaEjercicio (constructor
+'          con 4 parámetros).
 ' Date:
 '
 
@@ -28,7 +28,7 @@ sub main
 	Set oParent = GetParentPackage()
 
 	Dim oCasoUso
-	Set oCasoUso = GetOrCreatePackage(oParent, "CU5 Asignar Rutina a Usuario - Detalle Procedimental")
+	Set oCasoUso = GetOrCreatePackage(oParent, "CU6 Asignar Ejercicios a Rutina - Detalle Procedimental")
 
 	Dim oPkgModelo, oPkgVista, oPkgControlador, oPkgDato
 	Set oPkgModelo      = GetOrCreatePackage(oCasoUso, "Modelo")
@@ -42,48 +42,28 @@ sub main
 	AddAttribute oConexion, "instancia", "PDO", "Private", True
 	AddOperation0 oConexion, "getConexion", "PDO", "Public", True
 
-	' ---- Modelo::MAsignacion (models/AsignacionModel.php) ----
-	' Atributos = columnas reales de la tabla "asignacion". Sin "id":
-	' la clave primaria es compuesta (usuario_id, rutina_id, fecha_inicio).
+	' ---- Modelo::MRutinaEjercicio (models/RutinaEjercicioModel.php) ----
+	' Atributos = columnas reales de la tabla "rutina_ejercicio". Sin
+	' "id": la clave primaria es compuesta (rutina_id, ejercicio_id).
 	' conexion al final (no es columna de la tabla).
-	Dim oMAsignacion
-	Set oMAsignacion = GetOrCreateClass(oPkgModelo, "MAsignacion")
-	AddAttribute oMAsignacion, "usuario_id", "int", "Private", False
-	AddAttribute oMAsignacion, "rutina_id", "int", "Private", False
-	AddAttribute oMAsignacion, "fecha_inicio", "string", "Private", False
-	AddAttribute oMAsignacion, "fecha_fin", "string", "Private", False
-	AddAttribute oMAsignacion, "semana_numero", "int", "Private", False
-	AddAttribute oMAsignacion, "estado", "string", "Private", False
-	AddAttribute oMAsignacion, "notas", "string", "Private", False
-	AddAttribute oMAsignacion, "created_at", "string", "Private", False
-	AddAttribute oMAsignacion, "conexion", "PDO", "Private", False
+	Dim oMRutinaEjercicio
+	Set oMRutinaEjercicio = GetOrCreateClass(oPkgModelo, "MRutinaEjercicio")
+	AddAttribute oMRutinaEjercicio, "rutina_id", "int", "Private", False
+	AddAttribute oMRutinaEjercicio, "ejercicio_id", "int", "Private", False
+	AddAttribute oMRutinaEjercicio, "series", "int", "Private", False
+	AddAttribute oMRutinaEjercicio, "repeticiones", "string", "Private", False
+	AddAttribute oMRutinaEjercicio, "peso_sugerido", "string", "Private", False
+	AddAttribute oMRutinaEjercicio, "orden", "int", "Private", False
+	AddAttribute oMRutinaEjercicio, "notas", "string", "Private", False
+	AddAttribute oMRutinaEjercicio, "conexion", "PDO", "Private", False
 
-	AddOperation0 oMAsignacion, "__construct", "void", "Public", False
-	AddOperation1 oMAsignacion, "obtenerPorUsuario", "usuarioId", "int", "array", "Public"
-	AddOperation1 oMAsignacion, "agregar", "d", "array", "void", "Public"
-	AddOperation3Publico oMAsignacion, "eliminar", "usuarioId", "int", "rutinaId", "int", "fechaInicio", "string", "void"
-
-	' ---- Modelo::MUsuario (models/UsuarioModel.php) ----
-	' Dependencia: el controlador arma la lista de clientes con esto.
-	Dim oMUsuario
-	Set oMUsuario = GetOrCreateClass(oPkgModelo, "MUsuario")
-	AddAttribute oMUsuario, "id", "int", "Private", False
-	AddAttribute oMUsuario, "nombre", "string", "Private", False
-	AddAttribute oMUsuario, "apellido", "string", "Private", False
-	AddAttribute oMUsuario, "email", "string", "Private", False
-	AddAttribute oMUsuario, "password", "string", "Private", False
-	AddAttribute oMUsuario, "rol", "string", "Private", False
-	AddAttribute oMUsuario, "conexion", "PDO", "Private", False
-
-	AddOperation0 oMUsuario, "__construct", "void", "Public", False
-	AddOperation1 oMUsuario, "crear", "datos", "array", "array", "Public"
-	AddOperation0 oMUsuario, "obtenerTodos", "array", "Public", False
-	AddOperation1 oMUsuario, "obtenerPorId", "id", "int", "array", "Public"
-	AddOperation2 oMUsuario, "actualizar", "id", "int", "datos", "array", "void", "Public"
-	AddOperation1 oMUsuario, "eliminar", "id", "int", "void", "Public"
+	AddOperation0 oMRutinaEjercicio, "__construct", "void", "Public", False
+	AddOperation1 oMRutinaEjercicio, "obtenerPorRutina", "rutinaId", "int", "array", "Public"
+	AddOperation1 oMRutinaEjercicio, "agregar", "d", "array", "void", "Public"
+	AddOperation2 oMRutinaEjercicio, "eliminar", "rutinaId", "int", "ejercicioId", "int", "void", "Public"
 
 	' ---- Modelo::MRutina (models/RutinaModel.php) ----
-	' Dependencia: el controlador arma el <select> de rutinas con esto.
+	' Dependencia: el controlador arma la lista de rutinas con esto.
 	Dim oMRutina
 	Set oMRutina = GetOrCreateClass(oPkgModelo, "MRutina")
 	AddAttribute oMRutina, "id", "int", "Private", False
@@ -99,53 +79,73 @@ sub main
 	AddOperation2 oMRutina, "actualizar", "id", "int", "d", "array", "void", "Public"
 	AddOperation1 oMRutina, "eliminar", "id", "int", "void", "Public"
 
-	' ---- Vista::VAsignacion (views/AsignacionView.php) ----
+	' ---- Modelo::MEjercicio (models/EjercicioModel.php) ----
+	' Dependencia: el controlador arma el <select> de ejercicios con esto.
+	Dim oMEjercicio
+	Set oMEjercicio = GetOrCreateClass(oPkgModelo, "MEjercicio")
+	AddAttribute oMEjercicio, "id", "int", "Private", False
+	AddAttribute oMEjercicio, "nombre", "string", "Private", False
+	AddAttribute oMEjercicio, "descripcion", "string", "Private", False
+	AddAttribute oMEjercicio, "grupo_muscular", "string", "Private", False
+	AddAttribute oMEjercicio, "imagen_url", "string", "Private", False
+	AddAttribute oMEjercicio, "video_url", "string", "Private", False
+	AddAttribute oMEjercicio, "categoria_id", "int", "Private", False
+	AddAttribute oMEjercicio, "conexion", "PDO", "Private", False
+
+	AddOperation0 oMEjercicio, "__construct", "void", "Public", False
+	AddOperation0 oMEjercicio, "obtenerTodos", "array", "Public", False
+	AddOperation1 oMEjercicio, "buscarPorId", "id", "int", "array", "Public"
+	AddOperation1 oMEjercicio, "registrar", "d", "array", "array", "Public"
+	AddOperation2 oMEjercicio, "actualizar", "id", "int", "d", "array", "void", "Public"
+	AddOperation1 oMEjercicio, "eliminar", "id", "int", "void", "Public"
+
+	' ---- Vista::VRutinaEjercicio (views/RutinaEjercicioView.php) ----
 	' render hace echo directo: no devuelve nada.
-	Dim oVAsignacion
-	Set oVAsignacion = GetOrCreateClass(oPkgVista, "VAsignacion")
-	AddOperation4 oVAsignacion, "render", "usuario", "array", "usuarios", "array", "rutinas", "array", "asignadas", "array", "void", "Public"
+	Dim oVRutinaEjercicio
+	Set oVRutinaEjercicio = GetOrCreateClass(oPkgVista, "VRutinaEjercicio")
+	AddOperation4 oVRutinaEjercicio, "render", "rutina", "array", "rutinas", "array", "ejercicios", "array", "asignados", "array", "void", "Public"
 
-	' ---- Controlador::CAsignacion (controllers/AsignacionController.php) ----
-	' Tiene instancia de MUsuario, MRutina, MAsignacion y VAsignacion.
-	' Todos los métodos son void.
-	Dim oCAsignacion
-	Set oCAsignacion = GetOrCreateClass(oPkgControlador, "CAsignacion")
-	AddAttribute oCAsignacion, "modeloUsuario", "MUsuario", "Private", False
-	AddAttribute oCAsignacion, "modeloRutina", "MRutina", "Private", False
-	AddAttribute oCAsignacion, "modeloAsignacion", "MAsignacion", "Private", False
-	AddAttribute oCAsignacion, "vista", "VAsignacion", "Private", False
+	' ---- Controlador::CRutinaEjercicio (controllers/RutinaEjercicioController.php) ----
+	' Tiene instancia de MRutina, MEjercicio, MRutinaEjercicio y
+	' VRutinaEjercicio. Todos los métodos son void.
+	Dim oCRutinaEjercicio
+	Set oCRutinaEjercicio = GetOrCreateClass(oPkgControlador, "CRutinaEjercicio")
+	AddAttribute oCRutinaEjercicio, "modeloRutina", "MRutina", "Private", False
+	AddAttribute oCRutinaEjercicio, "modeloEjercicio", "MEjercicio", "Private", False
+	AddAttribute oCRutinaEjercicio, "modeloRutinaEj", "MRutinaEjercicio", "Private", False
+	AddAttribute oCRutinaEjercicio, "vista", "VRutinaEjercicio", "Private", False
 
-	AddOperation4 oCAsignacion, "__construct", "modeloUsuario", "MUsuario", "modeloRutina", "MRutina", "modeloAsignacion", "MAsignacion", "vista", "VAsignacion", "void", "Public"
-	AddOperation0 oCAsignacion, "obtenerTodos", "void", "Public", False
-	AddOperation1 oCAsignacion, "obtenerPorId", "usuarioId", "int", "void", "Public"
-	AddOperation1 oCAsignacion, "agregarAsignacion", "datos", "array", "void", "Public"
-	AddOperation3Publico oCAsignacion, "eliminarAsignacion", "usuarioId", "int", "rutinaId", "int", "fechaInicio", "string", "void"
+	AddOperation4 oCRutinaEjercicio, "__construct", "modeloRutina", "MRutina", "modeloEjercicio", "MEjercicio", "modeloRutinaEj", "MRutinaEjercicio", "vista", "VRutinaEjercicio", "void", "Public"
+	AddOperation0 oCRutinaEjercicio, "obtenerTodos", "void", "Public", False
+	AddOperation1 oCRutinaEjercicio, "obtenerPorId", "rutinaId", "int", "void", "Public"
+	AddOperation1 oCRutinaEjercicio, "agregarEjercicio", "datos", "array", "void", "Public"
+	AddOperation2 oCRutinaEjercicio, "eliminarEjercicio", "rutinaId", "int", "ejercicioId", "int", "void", "Public"
 
 	' ---- Relaciones ----
-	ConectarDependencia oCAsignacion, oMUsuario, "modeloUsuario"
-	ConectarDependencia oCAsignacion, oMRutina, "modeloRutina"
-	ConectarDependencia oCAsignacion, oMAsignacion, "modeloAsignacion"
-	ConectarDependencia oCAsignacion, oVAsignacion, "vista"
-	ConectarDependencia oMAsignacion, oConexion, "conexion"
-	ConectarDependencia oMUsuario, oConexion, "conexion"
+	ConectarDependencia oCRutinaEjercicio, oMRutina, "modeloRutina"
+	ConectarDependencia oCRutinaEjercicio, oMEjercicio, "modeloEjercicio"
+	ConectarDependencia oCRutinaEjercicio, oMRutinaEjercicio, "modeloRutinaEj"
+	ConectarDependencia oCRutinaEjercicio, oVRutinaEjercicio, "vista"
+	ConectarDependencia oMRutinaEjercicio, oConexion, "conexion"
 	ConectarDependencia oMRutina, oConexion, "conexion"
+	ConectarDependencia oMEjercicio, oConexion, "conexion"
 
 	' ---- Diagrama de clases ----
 	Dim oDiagrama
-	Set oDiagrama = GetOrCreateDiagram(oCasoUso, "CU5 Asignar Rutina a Usuario - Detalle Procedimental")
+	Set oDiagrama = GetOrCreateDiagram(oCasoUso, "CU6 Asignar Ejercicios a Rutina - Detalle Procedimental")
 
-	AgregarAlDiagrama oDiagrama, oVAsignacion,     0,   0,  280, 150
-	AgregarAlDiagrama oDiagrama, oMAsignacion,   350,   0,  680, 360
-	AgregarAlDiagrama oDiagrama, oMUsuario,      750,   0, 1080, 320
-	AgregarAlDiagrama oDiagrama, oMRutina,      1130,   0, 1430, 260
-	AgregarAlDiagrama oDiagrama, oCAsignacion,     0, 420,  400, 670
-	AgregarAlDiagrama oDiagrama, oConexion,      450, 420,  720, 540
+	AgregarAlDiagrama oDiagrama, oVRutinaEjercicio,   0,   0,  280, 150
+	AgregarAlDiagrama oDiagrama, oMRutinaEjercicio, 350,   0,  680, 360
+	AgregarAlDiagrama oDiagrama, oMRutina,          750,   0, 1050, 260
+	AgregarAlDiagrama oDiagrama, oMEjercicio,      1100,   0, 1400, 320
+	AgregarAlDiagrama oDiagrama, oCRutinaEjercicio,   0, 420,  400, 670
+	AgregarAlDiagrama oDiagrama, oConexion,         450, 420,  720, 540
 
 	oDiagrama.Update()
 	Repository.ReloadDiagram(oDiagrama.DiagramID)
 	Repository.OpenDiagram(oDiagrama.DiagramID)
 
-	MsgBox "Diagrama 'CU5 Asignar Rutina a Usuario' actualizado correctamente."
+	MsgBox "Diagrama 'CU6 Asignar Ejercicios a Rutina' actualizado correctamente."
 
 end sub
 
@@ -262,20 +262,6 @@ sub AddOperation2(oElement, sNombre, sParam1, sTipo1, sParam2, sTipo2, sRetorno,
 	AgregarParametro oMet, sParam2, sTipo2
 end sub
 
-' Operación pública con 3 parámetros (ej. eliminar(usuarioId, rutinaId, fechaInicio))
-sub AddOperation3Publico(oElement, sNombre, sParam1, sTipo1, sParam2, sTipo2, sParam3, sTipo3, sRetorno)
-	Dim oMet
-	Set oMet = ObtenerOCrearMetodo(oElement, sNombre)
-	oMet.ReturnType = sRetorno
-	oMet.Visibility = "Public"
-	oMet.Update()
-
-	LimpiarParametros oMet
-	AgregarParametro oMet, sParam1, sTipo1
-	AgregarParametro oMet, sParam2, sTipo2
-	AgregarParametro oMet, sParam3, sTipo3
-end sub
-
 ' Operación con 4 parámetros (ej. constructor con 4 dependencias, o render)
 sub AddOperation4(oElement, sNombre, sParam1, sTipo1, sParam2, sTipo2, sParam3, sTipo3, sParam4, sTipo4, sRetorno, sScope)
 	Dim oMet
@@ -294,7 +280,7 @@ end sub
 ' Borra todos los parámetros existentes del método para que, en cada
 ' corrida, queden exactamente los que se pasan ahora (mismo nombre,
 ' tipo y orden que en el código PHP real) sin arrastrar basura de
-' versiones anteriores (ej. la época Node.js).
+' versiones anteriores.
 sub LimpiarParametros(oMet)
 	Dim i
 	for i = oMet.Parameters.Count - 1 to 0 step -1
