@@ -20,10 +20,24 @@ class UsuarioModel
             'nombre' => $datos['nombre'],
             'apellido' => $datos['apellido'],
             'email' => $datos['email'],
-            'password' => $datos['password'],
+            'password' => password_hash($datos['password'], PASSWORD_BCRYPT),
             'rol' => $datos['rol'],
         ]);
         return $stmt->fetch();
+    }
+
+    public function autenticar(string $email, string $password): ?array
+    {
+        $stmt = $this->conexion->prepare('SELECT id, nombre, apellido, email, password, rol FROM usuario WHERE email = :email');
+        $stmt->execute(['email' => $email]);
+        $usuario = $stmt->fetch();
+
+        if (!$usuario || !password_verify($password, $usuario['password'])) {
+            return null;
+        }
+
+        unset($usuario['password']);
+        return $usuario;
     }
 
     public function obtenerTodos(): array
@@ -48,7 +62,7 @@ class UsuarioModel
             );
             $stmt->execute([
                 'nombre' => $datos['nombre'], 'apellido' => $datos['apellido'],
-                'email' => $datos['email'], 'password' => $datos['password'],
+                'email' => $datos['email'], 'password' => password_hash($datos['password'], PASSWORD_BCRYPT),
                 'rol' => $datos['rol'], 'id' => $id,
             ]);
             return;

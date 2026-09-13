@@ -9,11 +9,19 @@
 // eliminar viajan por querystring, así el path nunca cambia.
 // =====================================================
 
+session_start();
+
 require_once __DIR__ . '/Conexion.php';
 
 require_once __DIR__ . '/models/UsuarioModel.php';
 require_once __DIR__ . '/views/UsuarioView.php';
 require_once __DIR__ . '/controllers/UsuarioController.php';
+
+require_once __DIR__ . '/views/LoginView.php';
+require_once __DIR__ . '/controllers/LoginController.php';
+
+require_once __DIR__ . '/views/EntrenamientoView.php';
+require_once __DIR__ . '/controllers/EntrenamientoController.php';
 
 require_once __DIR__ . '/models/CategoriaModel.php';
 require_once __DIR__ . '/views/CategoriaView.php';
@@ -42,9 +50,48 @@ if (!is_dir($uploadsDir)) {
 }
 
 $pathname = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$metodo = $_SERVER['REQUEST_METHOD'];
+
+// ---- login / logout (rutas públicas) ----
+$loginC = new LoginController(new UsuarioModel(), new LoginView());
+
+if ($pathname === '/login') {
+    if ($metodo === 'POST') {
+        $loginC->iniciarSesion($_POST);
+    } else {
+        $loginC->mostrarFormulario();
+    }
+    exit;
+}
+
+if ($pathname === '/logout') {
+    $loginC->cerrarSesion();
+    exit;
+}
+
+// ---- a partir de acá, hace falta estar logueado ----
+if (empty($_SESSION['usuario'])) {
+    header('Location: /login');
+    exit;
+}
+
+$rolUsuario = $_SESSION['usuario']['rol'];
+
+// El cliente solo puede ver sus entrenamientos; todo lo demás (incluida
+// la raíz) lo manda para allá. Admin/entrenador van al panel de gestión.
+if ($rolUsuario === 'cliente' && $pathname !== '/mis-entrenamientos') {
+    header('Location: /mis-entrenamientos');
+    exit;
+}
 
 if ($pathname === '/') {
-    header('Location: /usuario');
+    header('Location: ' . ($rolUsuario === 'cliente' ? '/mis-entrenamientos' : '/usuario'));
+    exit;
+}
+
+if ($pathname === '/mis-entrenamientos') {
+    $entrenamientoC = new EntrenamientoController(new AsignacionModel(), new RutinaModel(), new RutinaEjercicioModel(), new EntrenamientoView());
+    $entrenamientoC->misEntrenamientos((int)$_SESSION['usuario']['id']);
     exit;
 }
 
@@ -81,8 +128,6 @@ $rutinaEjercicioC = new RutinaEjercicioController(
 $asignacionC = new AsignacionController(
     new UsuarioModel(), new RutinaModel(), new AsignacionModel(), new AsignacionView()
 );
-
-$metodo = $_SERVER['REQUEST_METHOD'];
 
 // Un recurso, una URL: GET lista (y precarga el form si ?editar=id),
 // POST crea/actualiza (según venga o no el id) o elimina (?eliminar=id)

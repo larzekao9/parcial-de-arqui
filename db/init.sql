@@ -105,6 +105,12 @@ INSERT INTO rutina_ejercicio (rutina_id, ejercicio_id, series, repeticiones, pes
     (1, 2, 4, '10-12', '50kg', 2),
     (1, 4, 3, '30s', 'Peso corporal', 3);
 
--- Contraseña de ejemplo: "admin123" (hash bcrypt generado por PHP en la capa de Negocio para nuevos registros)
+-- Contraseña de ambos: "admin123" (hash bcrypt real)
 INSERT INTO usuario (nombre, apellido, email, password, rol) VALUES
-    ('Admin', 'General', 'admin@gym.com', '$2y$10$e0NRVQ7q0m2h4qk4Z0m9OQ8Qw1o0m8m9n0m1m2m3m4m5m6m7m8mC', 'admin');
+    ('Admin', 'General', 'admin@gym.com', '$2y$10$b0U9y9q7eELaWdgwVug.n.dwyw5SmD4S3Vr5C4sW2hCV6UEjDqmbq', 'admin'),
+    ('Juan', 'Perez', 'cliente@gym.com', '$2y$10$b0U9y9q7eELaWdgwVug.n.dwyw5SmD4S3Vr5C4sW2hCV6UEjDqmbq', 'cliente');
+
+-- Le asignamos al cliente de ejemplo la rutina 1 para poder probar
+-- "Mis Entrenamientos" apenas se levanta el proyecto.
+INSERT INTO asignacion (usuario_id, rutina_id, fecha_inicio, estado) VALUES
+    ((SELECT id FROM usuario WHERE email = 'cliente@gym.com'), 1, CURRENT_DATE, 'activa');

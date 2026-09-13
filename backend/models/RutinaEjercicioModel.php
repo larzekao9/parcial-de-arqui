@@ -14,6 +14,7 @@ class RutinaEjercicioModel
     {
         $stmt = $this->conexion->prepare(
             'SELECT re.rutina_id, re.ejercicio_id, e.nombre AS ejercicio_nombre,
+                    e.imagen_url, e.video_url,
                     re.series, re.repeticiones, re.peso_sugerido, re.orden, re.notas
              FROM rutina_ejercicio re
              JOIN ejercicio e ON e.id = re.ejercicio_id
