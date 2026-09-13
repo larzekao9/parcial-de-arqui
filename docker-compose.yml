@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: arqui_gym
+      POSTGRES_USER: gym
+      POSTGRES_PASSWORD: gym123
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gym -d arqui_gym"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: arqui_gym
+      DB_USER: gym
+      DB_PASS: gym123
+    ports:
+      - "8080:80"
+    volumes:
+      - "./gym mvc/uploads:/var/www/html/uploads"
+
+volumes:
+  db_data:

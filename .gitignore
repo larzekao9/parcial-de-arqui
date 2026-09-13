@@ -1,2 +1,2 @@
-backend/uploads/*
-!backend/uploads/.gitkeep
+gym mvc/uploads/*
+!gym mvc/uploads/.gitkeep
