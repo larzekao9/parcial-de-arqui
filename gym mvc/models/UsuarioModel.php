@@ -10,11 +10,11 @@ class UsuarioModel
         $this->conexion = Conexion::getConexion();
     }
 
-    public function crear(array $datos): array
+    public function crear(array $datos): void
     {
         $stmt = $this->conexion->prepare(
             "INSERT INTO usuario (nombre, apellido, email, password, rol)
-             VALUES (:nombre, :apellido, :email, :password, :rol) RETURNING id"
+             VALUES (:nombre, :apellido, :email, :password, :rol)"
         );
         $stmt->execute([
             'nombre' => $datos['nombre'],
@@ -23,7 +23,6 @@ class UsuarioModel
             'password' => password_hash($datos['password'], PASSWORD_BCRYPT),
             'rol' => $datos['rol'],
         ]);
-        return $stmt->fetch();
     }
 
     public function autenticar(string $email, string $password): ?array

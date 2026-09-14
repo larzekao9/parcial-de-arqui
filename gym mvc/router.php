@@ -79,7 +79,9 @@ $rolUsuario = $_SESSION['usuario']['rol'];
 
 // El cliente solo puede ver sus entrenamientos; todo lo demás (incluida
 // la raíz) lo manda para allá. Admin/entrenador van al panel de gestión.
-if ($rolUsuario === 'cliente' && $pathname !== '/mis-entrenamientos') {
+// Los archivos de /uploads/ quedan afuera de esta regla porque las
+// imágenes/videos de sus rutinas se sirven por ahí.
+if ($rolUsuario === 'cliente' && $pathname !== '/mis-entrenamientos' && strpos($pathname, '/uploads/') !== 0) {
     header('Location: /mis-entrenamientos');
     exit;
 }
@@ -163,6 +165,7 @@ function manejarRecurso(string $recurso, object $controller, string $pathname, s
 
     return false;
 }
+//crear entidades
 
 if (manejarRecurso('usuario', $usuarioC, $pathname, $metodo)) exit;
 if (manejarRecurso('categoria', $categoriaC, $pathname, $metodo)) exit;

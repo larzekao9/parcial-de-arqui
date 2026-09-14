@@ -29,11 +29,11 @@ class EjercicioModel
         return $row ?: null;
     }
 
-    public function registrar(array $d): array
+    public function registrar(array $d): void
     {
         $stmt = $this->conexion->prepare(
             'INSERT INTO ejercicio (nombre, descripcion, grupo_muscular, imagen_url, video_url, categoria_id)
-             VALUES (:nombre, :descripcion, :grupo_muscular, :imagen_url, :video_url, :categoria_id) RETURNING id'
+             VALUES (:nombre, :descripcion, :grupo_muscular, :imagen_url, :video_url, :categoria_id)'
         );
         $stmt->execute([
             'nombre' => $d['nombre'],
@@ -43,7 +43,6 @@ class EjercicioModel
             'video_url' => $d['video_url'] ?? null,
             'categoria_id' => (int)$d['categoria_id'],
         ]);
-        return $stmt->fetch();
     }
 
     public function actualizar(int $id, array $d): void

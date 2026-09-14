@@ -23,17 +23,16 @@ class RutinaModel
         return $row ?: null;
     }
 
-    public function registrar(array $d): array
+    public function registrar(array $d): void
     {
         $stmt = $this->conexion->prepare(
-            'INSERT INTO rutina (nombre, descripcion, duracion_semanas) VALUES (:nombre, :descripcion, :duracion) RETURNING id'
+            'INSERT INTO rutina (nombre, descripcion, duracion_semanas) VALUES (:nombre, :descripcion, :duracion)'
         );
         $stmt->execute([
             'nombre' => $d['nombre'],
             'descripcion' => $d['descripcion'] ?? null,
             'duracion' => (int)$d['duracion_semanas'],
         ]);
-        return $stmt->fetch();
     }
 
     public function actualizar(int $id, array $d): void

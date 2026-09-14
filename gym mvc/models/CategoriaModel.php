@@ -10,11 +10,10 @@ class CategoriaModel
         $this->conexion = Conexion::getConexion();
     }
 
-    public function registrar(array $datos): array
+    public function registrar(array $datos): void
     {
-        $stmt = $this->conexion->prepare('INSERT INTO categoria_ejercicio (nombre) VALUES (:nombre) RETURNING id');
+        $stmt = $this->conexion->prepare('INSERT INTO categoria_ejercicio (nombre) VALUES (:nombre)');
         $stmt->execute(['nombre' => $datos['nombre']]);
-        return $stmt->fetch();
     }
 
     public function obtenerTodos(): array

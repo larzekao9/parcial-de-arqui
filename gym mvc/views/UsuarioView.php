@@ -12,7 +12,7 @@ class UsuarioView
         $titulo = $editando ? 'Editar usuario' : 'Nuevo usuario';
 
         $roles = '';
-        foreach (['admin', 'entrenador', 'cliente'] as $r) {
+        foreach (['admin','cliente'] as $r) {
             $sel = $u['rol'] === $r ? 'selected' : '';
             $roles .= "<option value=\"$r\" $sel>$r</option>";
         }

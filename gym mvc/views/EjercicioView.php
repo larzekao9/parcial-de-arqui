@@ -7,6 +7,10 @@ class EjercicioView
     {
         $editando = $opciones['editando'] ?? null;
         $categorias = $opciones['categorias'] ?? [];
+        $error = $opciones['error'] ?? null;
+        $bannerError = $error
+            ? '<div class="mb-4 max-w-lg rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">' . esc($error) . '</div>'
+            : '';
 
         // ---- formulario ----
         $e = $editando ?? ['id' => null, 'nombre' => '', 'descripcion' => '', 'grupo_muscular' => '', 'imagen_url' => '', 'video_url' => '', 'categoria_id' => null];
@@ -20,12 +24,19 @@ class EjercicioView
 
         $idHidden = $editando ? '<input type="hidden" name="id" value="' . $e['id'] . '">' : '';
         $cancelar = $editando ? '<a href="/ejercicio" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-100">Cancelar</a>' : '';
-        $previewImg = !empty($e['imagen_url']) ? '<img src="' . esc($e['imagen_url']) . '" class="h-16 mt-2 rounded-lg border border-slate-200">' : '';
-        $previewVid = !empty($e['video_url']) ? '<video src="' . esc($e['video_url']) . '" class="h-16 mt-2 rounded-lg border border-slate-200 bg-black" muted controls></video>' : '';
+        $previewImg = !empty($e['imagen_url'])
+            ? '<img src="' . esc($e['imagen_url']) . '" class="h-16 mt-2 rounded-lg border border-slate-200">
+               <label class="flex items-center gap-1 mt-1 text-xs text-rose-600"><input type="checkbox" name="quitar_imagen" value="1"> Quitar imagen actual</label>'
+            : '';
+        $previewVid = !empty($e['video_url'])
+            ? '<video src="' . esc($e['video_url']) . '" class="h-16 mt-2 rounded-lg border border-slate-200 bg-black" muted controls></video>
+               <label class="flex items-center gap-1 mt-1 text-xs text-rose-600"><input type="checkbox" name="quitar_video" value="1"> Quitar video actual</label>'
+            : '';
 
         $formulario = '
       <div class="mb-6">
         <h1 class="text-xl font-bold text-slate-800 mb-4">' . $titulo . '</h1>
+        ' . $bannerError . '
         <form method="POST" action="/ejercicio" enctype="multipart/form-data" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 max-w-lg space-y-4">
           ' . $idHidden . '
           <input type="hidden" name="imagen_actual" value="' . esc($e['imagen_url']) . '">
@@ -52,11 +63,13 @@ class EjercicioView
             <div>
               <label class="block text-sm text-slate-600 mb-1">Imagen</label>
               <input type="file" name="imagen" accept="image/*" class="w-full text-sm text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600">
+              <p class="text-xs text-slate-400 mt-1">Máx. 80MB</p>
               ' . $previewImg . '
             </div>
             <div>
               <label class="block text-sm text-slate-600 mb-1">Video</label>
               <input type="file" name="video" accept="video/*" class="w-full text-sm text-slate-600 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:text-indigo-600">
+              <p class="text-xs text-slate-400 mt-1">Máx. 80MB</p>
               ' . $previewVid . '
             </div>
           </div>
