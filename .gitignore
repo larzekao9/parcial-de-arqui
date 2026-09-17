@@ -1,3 +1,4 @@
 gym mvc/uploads/*
 !gym mvc/uploads/.gitkeep
 .DS_Store
+.credenciales.md
