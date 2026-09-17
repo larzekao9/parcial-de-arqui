@@ -4,7 +4,7 @@ require_once __DIR__ . '/../Conexion.php';
 class EjercicioModel
 {
     private PDO $conexion;
-
+    
     public function __construct()
     {
         $this->conexion = Conexion::getConexion();
